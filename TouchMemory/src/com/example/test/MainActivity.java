@@ -30,7 +30,6 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
     	
@@ -39,73 +38,86 @@ public class MainActivity extends Activity {
     	for (int i = 0; i < imageIds.length; i++) {
         	ImageView imgView = (ImageView) findViewById(imageIds[i]);
         	images[i] = imgView;
-        	
-    		imgView.setOnTouchListener(new OnTouchListener() {
-    			public boolean onTouch(View v, MotionEvent event) {
-    				
-    				if (v instanceof ImageView) {
-    					
-    					PuzzleTile tile = tiles[findIndex((ImageView)v)];
-    					if (tile.isFaceup() && !tile.isMatched()) { // deselect a non-matched tile
-    						((ImageView)v).setImageResource(R.drawable.question);
-    						tile.setFaceup(false);
-    						currentSelection = null;
-    						selectionCount--;
-    					} else if (selectionCount < 2) { 
-            		    	((ImageView)v).setImageResource(tile.getImageId());
-            		    	tile.setFaceup(true);
-            		    	tile.setLastTouchTS(event.getDownTime());
-            		    	
-            		    	if (currentSelection != null && tile.getImageId() == currentSelection.getImageId()) {
-            		    		tile.setMatched(true);
-            		    		currentSelection.setMatched(true);
-            		    		currentSelection = null;
-        						selectionCount = 0;
-        						//TODO animate a border or something
-        						
-        						if (getMatchedCount() == tiles.length) {
-        							//TODO you've won the game
-        					    	generateTiles(); // but this isn't enough because we'd need to redraw etc.
-        						}
-        						
-            		    	} else {
-                		    	currentSelection = tile;
-                		    	selectionCount++;
-                		    	
-                		    	if (selectionCount == 2) {
-                		    		Log.i(TAG, "we should probably auto-hide after a delay");
-
-                		    		//http://stackoverflow.com/questions/15874117/how-to-set-delay-in-android
-                		    		final Handler handler = new Handler();
-                		    		handler.postDelayed(new Runnable() {
-                		    		    @Override
-                		    		    public void run() {
-                        		    		Log.i(TAG, "oK now we hide");
-
-                		    		        // Do something after 5s = 5000ms
-                		    		        // buttons[inew][jnew].setBackgroundColor(Color.BLACK);
-                		    		    }
-                		    		}, 5000);
-                		    		
-                		    	}
-            		    	}
-    					} else {
-    						Log.i(TAG, "you idiot, you already selected two");
-    					}
-    					
-    				}
-    				
-    				Log.i(TAG, getGameStateString());
-    				
-    				return false;
-    			}
-    		});
+    		imgView.setOnTouchListener(createTouchListener());
     	}
-    	
 
         //getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
+
+
+	private OnTouchListener createTouchListener() {
+		return new OnTouchListener() {
+			public boolean onTouch(View v, MotionEvent event) {
+				
+				if (v instanceof ImageView) {
+					
+					PuzzleTile tile = tiles[findIndex((ImageView)v)];
+					if (tile.isFaceup() && !tile.isMatched()) { // deselect a non-matched tile
+						((ImageView)v).setImageResource(R.drawable.question);
+						tile.setFaceup(false);
+						currentSelection = null;
+						selectionCount--;
+					} else if (selectionCount < 2) { 
+				    	((ImageView)v).setImageResource(tile.getImageId());
+				    	tile.setFaceup(true);
+				    	tile.setLastTouchTS(event.getDownTime());
+				    	
+				    	if (currentSelection != null && tile.getImageId() == currentSelection.getImageId()) {
+				    		tile.setMatched(true);
+				    		currentSelection.setMatched(true);
+				    		currentSelection = null;
+							selectionCount = 0;
+							//TODO animate a border or something
+							
+							if (getMatchedCount() == tiles.length) {
+								//TODO you've won the game
+		    		    		final Handler handler = new Handler();
+		    		    		handler.postDelayed(new Runnable() {
+		    		    		    @Override
+		    		    		    public void run() {
+								    	generateTiles(); // but this isn't enough because we'd need to redraw etc.
+		    		    		    }
+		    		    		}, 5000);
+
+							}
+							
+				    	} else {
+		    		    	currentSelection = tile;
+		    		    	selectionCount++;
+		    		    	
+		    		    	if (selectionCount == 2) {
+		    		    		Log.i(TAG, "we should probably auto-hide after a delay");
+
+		    		    		//http://stackoverflow.com/questions/15874117/how-to-set-delay-in-android
+		    		    		final Handler handler = new Handler();
+		    		    		handler.postDelayed(new Runnable() {
+		    		    		    @Override
+		    		    		    public void run() {
+		            		    		Log.i(TAG, "oK now we hide");
+
+		            		    		//TODO... wrong still 
+		            		    		/* currentSelection.setFaceup(false);
+		        						currentSelection = null;
+		        						selectionCount--; */
+
+		    		    		    }
+		    		    		}, 5000);
+		    		    		
+		    		    	}
+				    	}
+					} else {
+						Log.i(TAG, "you idiot, you already selected two");
+					}
+					
+				}
+				
+				Log.i(TAG, getGameStateString());
+				
+				return false;
+			}
+		};
+	}
 
 	private void generateTiles() {
     	for (int i = 0; i < imageIds.length; i++) {
