@@ -38,13 +38,21 @@ public class MainActivity extends Activity {
     	for (int i = 0; i < imageIds.length; i++) {
         	ImageView imgView = (ImageView) findViewById(imageIds[i]);
         	images[i] = imgView;
-    		imgView.setOnTouchListener(createTouchListener());
+    		imgView.setOnTouchListener(getTouchListener());
     	}
 
         //getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
+    private OnTouchListener touchListener;
+    
+    private OnTouchListener getTouchListener() {
+    	if (touchListener == null) {
+    		touchListener = createTouchListener();
+    	}
+    	return touchListener;
+    }
 
 	private OnTouchListener createTouchListener() {
 		return new OnTouchListener() {
