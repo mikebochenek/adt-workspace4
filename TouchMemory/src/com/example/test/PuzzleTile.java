@@ -5,14 +5,7 @@ public class PuzzleTile {
 	private boolean matched;
 	private boolean faceup;
 	private int imageId;
-	private long lastTouchTS;
 	
-	public long getLastTouchTS() {
-		return lastTouchTS;
-	}
-	public void setLastTouchTS(long lastTouchTS) {
-		this.lastTouchTS = lastTouchTS;
-	}
 	public boolean isMatched() {
 		return matched;
 	}

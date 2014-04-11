@@ -69,7 +69,6 @@ public class MainActivity extends Activity {
 					} else if (selectionCount < 2) { 
 				    	((ImageView)v).setImageResource(tile.getImageId());
 				    	tile.setFaceup(true);
-				    	tile.setLastTouchTS(event.getDownTime());
 				    	
 				    	// here you have selected and matched the 2nd tile
 				    	if (currentSelection != null && tile.getImageId() == currentSelection.getImageId()) {
