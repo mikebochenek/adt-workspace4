@@ -71,6 +71,7 @@ public class MainActivity extends Activity {
 				    	tile.setFaceup(true);
 				    	tile.setLastTouchTS(event.getDownTime());
 				    	
+				    	// here you have selected and matched the 2nd tile
 				    	if (currentSelection != null && tile.getImageId() == currentSelection.getImageId()) {
 				    		tile.setMatched(true);
 				    		currentSelection.setMatched(true);
@@ -84,13 +85,18 @@ public class MainActivity extends Activity {
 		    		    		handler.postDelayed(new Runnable() {
 		    		    		    @Override
 		    		    		    public void run() {
+		            		    		Log.i(TAG, "You won, lets play again");
+
+		    		    		    	for (ImageView image : images) {
+		    		    		    		image.setImageResource(R.drawable.question);
+		    		    		    	}
 								    	generateTiles(); // but this isn't enough because we'd need to redraw etc.
 		    		    		    }
 		    		    		}, 5000);
 
 							}
 							
-				    	} else {
+				    	} else { // wrong selection of second tile (two files faces up, but not matching)
 		    		    	currentSelection = tile;
 		    		    	selectionCount++;
 		    		    	
@@ -102,15 +108,28 @@ public class MainActivity extends Activity {
 		    		    		handler.postDelayed(new Runnable() {
 		    		    		    @Override
 		    		    		    public void run() {
-		            		    		Log.i(TAG, "oK now we hide");
+		            		    		Log.i(TAG, "OK now we hide");
 
-		            		    		//TODO... wrong still 
-		            		    		/* currentSelection.setFaceup(false);
+		            		    		//is it still wrong because I need to change the image?
+		            		    		int idx = findIndex(currentSelection);
+		            		    		if (idx != -1) {
+			        			        	ImageView v = (ImageView) findViewById(imageIds[idx]);
+			        						v.setImageResource(R.drawable.question);
+			            		    		currentSelection.setFaceup(false);
+		            		    		}
+		        						
+		        						PuzzleTile otherTile = getFirstUnmachtedTile();
+		        						if (otherTile != null) {
+		        							ImageView v = (ImageView) findViewById(imageIds[findIndex(otherTile)]);
+			        						v.setImageResource(R.drawable.question);
+		        							otherTile.setFaceup(false);
+		        						}
+
 		        						currentSelection = null;
-		        						selectionCount--; */
+		        						selectionCount = 0;
 
 		    		    		    }
-		    		    		}, 5000);
+		    		    		}, 1000);
 		    		    		
 		    		    	}
 				    	}
@@ -151,6 +170,24 @@ public class MainActivity extends Activity {
     		}
     	}
     	return -1;
+    }
+    
+    private int findIndex(PuzzleTile p) {
+    	for (int i = 0; i < tiles.length; i++) {
+    		if (tiles[i].equals(p)) {
+    			return i;
+    		}
+    	}
+    	return -1;
+    }
+    
+    private PuzzleTile getFirstUnmachtedTile() {
+    	for (PuzzleTile t : tiles) {
+    		if (t.isFaceup() && !t.isMatched()) {
+    			return t;
+    		}
+    	}
+    	return null;
     }
     
     private String getGameStateString() {
