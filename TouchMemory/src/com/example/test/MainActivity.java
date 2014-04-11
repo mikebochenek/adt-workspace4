@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.app.Activity;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
@@ -56,6 +55,31 @@ public class MainActivity extends Activity {
 
 	private OnTouchListener createTouchListener() {
 		return new OnTouchListener() {
+		    private Runnable wrongSelectionHandler = new Runnable() {
+			    @Override
+			    public void run() {
+
+		    		//is it still wrong because I need to change the image?
+		    		int idx = findIndex(currentSelection);
+		    		if (idx != -1) {
+			        	ImageView v = (ImageView) findViewById(imageIds[idx]);
+						v.setImageResource(R.drawable.question);
+			    		currentSelection.setFaceup(false);
+		    		}
+					
+					PuzzleTile otherTile = getFirstUnmachtedTile();
+					if (otherTile != null) {
+						ImageView v = (ImageView) findViewById(imageIds[findIndex(otherTile)]);
+						v.setImageResource(R.drawable.question);
+						otherTile.setFaceup(false);
+					}
+
+					currentSelection = null;
+					selectionCount = 0;
+
+			    }
+			};
+
 			public boolean onTouch(View v, MotionEvent event) {
 				
 				if (v instanceof ImageView) {
@@ -79,13 +103,12 @@ public class MainActivity extends Activity {
 							//TODO animate a border or something
 							
 							if (getMatchedCount() == tiles.length) {
-								//TODO you've won the game
+            		    		Log.i(TAG, "You won, lets play again");
+            		    		
 		    		    		final Handler handler = new Handler();
 		    		    		handler.postDelayed(new Runnable() {
 		    		    		    @Override
 		    		    		    public void run() {
-		            		    		Log.i(TAG, "You won, lets play again");
-
 		    		    		    	for (ImageView image : images) {
 		    		    		    		image.setImageResource(R.drawable.question);
 		    		    		    	}
@@ -102,34 +125,11 @@ public class MainActivity extends Activity {
 		    		    	if (selectionCount == 2) {
 		    		    		Log.i(TAG, "we should probably auto-hide after a delay");
 
+            		    		Log.i(TAG, "OK now we hide");
+
 		    		    		//http://stackoverflow.com/questions/15874117/how-to-set-delay-in-android
 		    		    		final Handler handler = new Handler();
-		    		    		handler.postDelayed(new Runnable() {
-		    		    		    @Override
-		    		    		    public void run() {
-		            		    		Log.i(TAG, "OK now we hide");
-
-		            		    		//is it still wrong because I need to change the image?
-		            		    		int idx = findIndex(currentSelection);
-		            		    		if (idx != -1) {
-			        			        	ImageView v = (ImageView) findViewById(imageIds[idx]);
-			        						v.setImageResource(R.drawable.question);
-			            		    		currentSelection.setFaceup(false);
-		            		    		}
-		        						
-		        						PuzzleTile otherTile = getFirstUnmachtedTile();
-		        						if (otherTile != null) {
-		        							ImageView v = (ImageView) findViewById(imageIds[findIndex(otherTile)]);
-			        						v.setImageResource(R.drawable.question);
-		        							otherTile.setFaceup(false);
-		        						}
-
-		        						currentSelection = null;
-		        						selectionCount = 0;
-
-		    		    		    }
-		    		    		}, 1000);
-		    		    		
+		    		    		handler.postDelayed(this.wrongSelectionHandler, 1000);
 		    		    	}
 				    	}
 					} else {
